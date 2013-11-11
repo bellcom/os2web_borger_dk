@@ -1001,7 +1001,7 @@ function os2web_borger_dk_node_submit(&$node, $form, &$form_state) {
 
       // And we update all the node-fields with the article-values.
       $node = new stdClass();
-      $node->language = 'da';
+      $node->language = 'und';
       $node->status = $form_state['values']['status'];
       $node->promote = $form_state['values']['promote'];
       $node->sticky = $form_state['values']['sticky'];
