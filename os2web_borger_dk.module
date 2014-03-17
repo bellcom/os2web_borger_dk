@@ -907,7 +907,6 @@ function os2web_borger_dk_node_submit(&$node, $form, &$form_state) {
         }
         $node->body['und'][0]['value'] = $article_text;
         $node->body['und'][0]['safe_value'] = $article_text;
-        node_save($node);
         $serialized_microarticle = serialize($field_microarticle_settings);
         db_update('os2web_borger_dk_article')
             ->fields(array(
