@@ -30,6 +30,7 @@ div.microArticle a {
 }
 .microArticle {
   border-top: 1px solid #dddddd;
+  position: relative;
 }
 .borger_dk_billede img {
   width: 200px;
@@ -170,28 +171,27 @@ div.microArticle a {
 a.gplus {
   display: inline-block;
   background-image: url(../images/foldOut.png);
-  background-position: 0px -143px;
   width: 23px;
   height: 23px;
   font-size: 0;
   background-repeat: no-repeat;
   background-position: 100% 0%;
-  float: right;
-  margin-top: 8px;
+  position: absolute;
+  top: 10px;
+  right: 5px;
 }
 
 a.gminus {
   display: inline-block;
   background-image: url(../images/foldIn.png);
-  background-position: 0px -143px;
   width: 23px;
   height: 23px;
   font-size: 0;
   background-repeat: no-repeat;
   background-position: 100% 0%;
-  float: right;
-  margin-top: 8px;
-
+  position: absolute;
+  top: 10px;
+  right: 5px;
 }
 
 .borger_dk_body_intro_text .intro_text_text {
@@ -229,6 +229,6 @@ a.gminus {
   display: inline-block;
   font-size: 0;
   vertical-align: middle;
-width: 23px;
-height: 23px;
+  width: 23px;
+  height: 23px;
 }

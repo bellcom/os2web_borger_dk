@@ -33,6 +33,23 @@
         $("div.mArticle").hide();
         return false;
       });
+      $(".microArticle h2.mArticle").click(function() {
+        var myid = $(this).attr('id');
+        var style = $('div.' + myid).css('display');
+        var path = $(this).css("background-image");
+        if (style == 'none') {
+          $("div." + myid).show("500");
+          var alink = $(this).parent().find("a.gplus");
+          alink.addClass('gminus');
+          alink.removeClass('gplus');
+        }
+        else {
+          $("div." + myid).hide("500");
+          var alink = $(this).parent().find("a.gminus");
+          alink.addClass('gplus');
+          alink.removeClass('gminus');
+        }
+      });
     }
   }
 })(jQuery);
