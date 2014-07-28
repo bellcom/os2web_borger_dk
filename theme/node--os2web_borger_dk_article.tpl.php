@@ -30,7 +30,7 @@
       if ($admin_display_fields[$type]) {
         $arr = $node-> $type;
 
-      if (count($arr) > 0 && $type != 'title' && $type != 'field_os2web_borger_dk_image') {
+        if (count($arr) > 0 && $type != 'title' && $type != 'field_os2web_borger_dk_image') {
           $content_field[$type] = $arr['und']['0']['value'];
         }
         elseif (count($arr) > 0 && $type == 'field_os2web_borger_dk_image') {
@@ -40,15 +40,14 @@
         }
         else {
           $content_field[$type] = '';
-       }
+        }
         // Microarticles : if microarticle is set up to show by admin.
-        if ($microarticle) {
+        if ($microarticle && $type == 'body' && !empty($field_microarticle_settings)) {
           // Check if content field is body and field_microarticle_settings
           // is NOT empty.
           // The field_microarticle_setting will be empty when a new
           // article is imported and shown in a form, then node_view
           // will display full body text.
-          if ($type == 'body' && !empty($field_microarticle_settings)) {
             $body_text = $node->body['und']['0']['value'];
             // Link break in body_text: in windows \r\n, linux \n.
             preg_match("/<\/div>\n/", $body_text, $link_break);
@@ -75,7 +74,6 @@
             // Content body shows only visible microarticles/ part of body_text.
             $show_div = str_replace("</h2>","</h2><a href='#' class='gplus'>+</a>",$show_div);
             $content_field[$type] = $show_div;
-          }
         }
         elseif ($type == 'body') {
           $show_div = $node->body['und']['0']['value'];
