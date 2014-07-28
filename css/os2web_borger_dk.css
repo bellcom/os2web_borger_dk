@@ -1,11 +1,11 @@
 #borger_dk-body h2 {
-  background-image: url('../images/foldOut.png');
-  background-position: 98% 50%;
-  background-repeat: no-repeat;
-  border-top: 1px solid #dddddd;
   font-size: 16px !important;
   margin-bottom: 2px;
   padding: 5px 0;
+  display: inline-block;
+  width: 95%;
+  background: none;
+  margin-top: 5px;
 }
 
 #borger_dk-body h5 {
@@ -27,6 +27,9 @@
 
 div.microArticle a {
   color: #496E04;
+}
+.microArticle {
+  border-top: 1px solid #dddddd;
 }
 .borger_dk_billede img {
   width: 200px;
@@ -99,6 +102,7 @@ div.microArticle a {
   font-weight: 300;
   padding-bottom: 10px;
   padding-top: 15px;
+  margin-bottom: 20px;
 }
 
 .borger_dk-region-stack3 .inside .borger_dk-body.node-body div a:link a:visited,
@@ -162,4 +166,69 @@ div.microArticle a {
   font-family: "myriad-pro",Arial,Helvetica,sans-serif;
   float: right;
   padding-right: 10px;
+}
+a.gplus {
+  display: inline-block;
+  background-image: url(../images/foldOut.png);
+  background-position: 0px -143px;
+  width: 23px;
+  height: 23px;
+  font-size: 0;
+  background-repeat: no-repeat;
+  background-position: 100% 0%;
+  float: right;
+  margin-top: 8px;
+}
+
+a.gminus {
+  display: inline-block;
+  background-image: url(../images/foldIn.png);
+  background-position: 0px -143px;
+  width: 23px;
+  height: 23px;
+  font-size: 0;
+  background-repeat: no-repeat;
+  background-position: 100% 0%;
+  float: right;
+  margin-top: 8px;
+
+}
+
+.borger_dk_body_intro_text .intro_text_text {
+  width: 70%;
+  display: inline-block;
+}
+.intro_text_buttons {
+  float: right;
+}
+.gplus_gminus {
+  margin-left: 10px;
+  text-decoration: none;
+  color:  #333;
+}
+.gplus_gminus:hover {
+  text-decoration: none;
+  color: #333;
+}
+.gplus_button {
+  background-image: url(../images/foldOut.png);
+  background-position: 0px -143px;
+  background-repeat: no-repeat;
+  background-position: 100% 0%;
+  display: inline-block;
+  font-size: 0;
+  vertical-align: middle;
+  width: 23px;
+  height: 23px;
+}
+.gminus_button {
+  background-image: url(../images/foldIn.png);
+  background-position: 0px -143px;
+  background-repeat: no-repeat;
+  background-position: 100% 0%;
+  display: inline-block;
+  font-size: 0;
+  vertical-align: middle;
+width: 23px;
+height: 23px;
 }
