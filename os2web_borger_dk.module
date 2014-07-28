@@ -30,14 +30,6 @@ function os2web_borger_dk_menu() {
     'access arguments' => array('administer site configuration'),
     'file' => 'os2web_borger_dk.admin.inc',
   );
-//
-//  $items['admin/borgerdk/debug'] = array(
-//    'title' => 'OS2web Borger.dk Debug',
-//    'description' => 'Debug OS2Web Borger.dk Articles',
-//    'page callback' => 'drupal_get_form',
-//    'page arguments' => array('os2web_borger_dk_articles_debug_form'),
-//    'access arguments' => array('administer site configuration'),
-//  );
 
   $items['import/os2web_borger_dk/autocomplete'] = array(
     'page callback' => '_os2web_borger_dk_autocomplete_callback',
@@ -48,16 +40,6 @@ function os2web_borger_dk_menu() {
   );
 
   return $items;
-}
-
-function os2web_borger_dk_articles_debug_form($form, $form_state) {
-  $form['delete_menu'] = array(
-    '#type' => 'submit',
-    '#value' => 'Debug Cron Borger.dk-Menu now',
-    '#submit' => array('os2web_borger_dk_debug_form_submit')
-  );
-
-  return $form;
 }
 
 /**
