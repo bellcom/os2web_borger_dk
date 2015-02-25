@@ -1,3 +1,7 @@
+/**
+ * @file os2web_borger_dk.js
+ */
+
 (function($) {
   Drupal.behaviors.os2web_borger_dk = {
     attach: function(context) {
@@ -7,7 +11,6 @@
         var article = $(this).parent().find('h2');
         var myid = article.attr('id');
         var style = $('div.' + myid).css('display');
-        var path = $(this).css("background-image");
         if (style == 'none') {
           $("div." + myid).show("500");
           $(this).addClass('gminus');
@@ -20,23 +23,38 @@
         }
         return false;
       });
+
       $(".gplus_all").click(function() {
-        $("div.mArticle").show();
-        $(".microArticle a.gplus").addClass('gminus');
-        $(".microArticle a.gplus").removeClass('gplus');
+        if ($(".microArticle a").hasClass("gminus")) {
+          $("div.mArticle").hide();
+          $(".microArticle a.gminus").addClass('gplus');
+          $(".microArticle a.gminus").removeClass('gminus');
+        }
+        else {
+          $("div.mArticle").show();
+          $(".microArticle a.gplus").addClass('gminus');
+          $(".microArticle a.gplus").removeClass('gplus');
+        }
         return false;
       });
 
       $(".gminus_all").click(function() {
-        $(".microArticle a.gminus").addClass('gplus');
-        $(".microArticle a.gminus").removeClass('gminus');
-        $("div.mArticle").hide();
+        if ($(".microArticle a").hasClass("gminus")) {
+          $("div.mArticle").hide();
+          $(".microArticle a.gminus").addClass('gplus');
+          $(".microArticle a.gminus").removeClass('gminus');
+        }
+        else {
+          $("div.mArticle").show();
+          $(".microArticle a.gplus").addClass('gminus');
+          $(".microArticle a.gplus").removeClass('gplus');
+        }
         return false;
       });
+
       $(".microArticle h2.mArticle").click(function() {
         var myid = $(this).attr('id');
         var style = $('div.' + myid).css('display');
-        var path = $(this).css("background-image");
         if (style == 'none') {
           $("div." + myid).show("500");
           var alink = $(this).parent().find("a.gplus");
