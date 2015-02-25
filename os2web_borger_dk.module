@@ -25,7 +25,7 @@ function os2web_borger_dk_menu() {
     'page callback' => 'system_admin_menu_block_page',
     'file' => 'system.admin.inc',
     'file path' => drupal_get_path('module', 'system'),
-    'access arguments' => array('administer site configuration'),
+    'access arguments' => array('administer os2web borgerdk article settings'),
   );
 
   $items['admin/config/os2web_borger_dk/settings'] = array(
@@ -33,7 +33,7 @@ function os2web_borger_dk_menu() {
     'description' => 'General settings for the OS2Web borger.dk',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('os2web_borger_dk_settings_form'),
-    'access arguments' => array('administer site configuration'),
+    'access arguments' => array('administer os2web borgerdk article settings'),
     'file' => 'os2web_borger_dk.admin.inc',
   );
 
@@ -45,6 +45,17 @@ function os2web_borger_dk_menu() {
   );
 
   return $items;
+}
+/**
+ * Implements hook_permission().
+ */
+function os2web_borger_dk_permission() {
+  return array(
+    'administer os2web borgerdk article settings' => array(
+      'title' => t('Administer OS2Web Borger.dk article settings'),
+      'description' => t('Administer settings for the OS2Web Borger.dk article import module.'),
+    ),
+  );
 }
 
 /**
@@ -773,7 +784,7 @@ function os2web_borger_dk_node_validate($node, $form, &$form_state) {
 }
 
 /**
- * Funtion os2web_borger_dk_sync_submit().
+ * Function os2web_borger_dk_sync_submit().
  */
 function os2web_borger_dk_sync_submit($form, &$form_state) {
   // Get the node->nid from the form['#node'].
@@ -787,32 +798,10 @@ function os2web_borger_dk_sync_submit($form, &$form_state) {
   $wsdl = variable_get('os2web_borger_dk_webservice', 'https://www.borger.dk/_vti_bin/borger/ArticleExport.svc?wsdl');
   $article = _os2web_borger_dk_GetArticleByID($data->external_id, $wsdl);
 
-  $last_update = $data->last_updated;
-  $last_article_update = strtotime($article['last_updated']);
-
-  // yx@bellcom.dk: fix the problem with selvbetjeningslinks
-  // update with "faktaboks" ID.
-
-  $node = node_load($nid);
-  $field_selvbetjeningslinks = field_get_items('node', $node, 'field_os2web_borger_dk_selfservi');
-
-  // And we check if the article has been updated before we update the node.
-  if ($last_update < $last_article_update) {
-    // Now we update the node content with the fetched article content.
-    _os2web_borger_dk_update_node_content($nid, $article);
-    // And we notify the user that the article has been updated.
-    drupal_set_message(t('The article has been updated with new content from Borger.dk'), 'status');
-  }
-  // Or if article contains selvbetjeningslink, but site content does NOT.
-  elseif (empty($field_selvbetjeningslinks) && isset($article['selvbetjeningslinks'])) {
-    _os2web_borger_dk_update_node_content($nid, $article);
-    // And we notify the user that the article has been updated.
-    drupal_set_message(t('The article has been updated with new content from Borger.dk'), 'status');
-  }
-  else {
-    // We also notify the user if the article is up to date already.
-    drupal_set_message(t('This article is identical to the article from Borger.dk, and has not been updated'), 'status');
-  }
+  // Now we update the node content with the fetched article content.
+  _os2web_borger_dk_update_node_content($nid, $article);
+  // And we notify the user that the article has been updated.
+  drupal_set_message(t('The article has been updated with new content from Borger.dk'), 'status');
 
   drupal_goto('node/' . $nid . '/edit');
 }
