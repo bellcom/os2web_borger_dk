@@ -6,6 +6,11 @@
  */
 
 include_once 'os2web_borger_dk.features.inc';
+/**
+ * Text formats
+ */
+define('BORGERDK_TEXT_FORMAT_PLAIN', variable_get('os2web_borger_dk_articles_text_format_plain', 'plain_text'));
+define('BORGERDK_TEXT_FORMAT_HTML', variable_get('os2web_borger_dk_articles_text_format_html', 'full_html'));
 
 /**
  * Implements hook_menu().
@@ -418,13 +423,13 @@ function os2web_borger_dk_after_build($form, &$form_state) {
     // non-editable in the admin-editable-settings.
     $value_editable = variable_get('os2web_borger_dk_editable', array(NULL));
     foreach ($value_editable as $type => $editable) {
-      if (empty($editable) || !empty($locked_os2web_types[$type])) {
+      if ((empty($editable) || !empty($locked_os2web_types[$type])) && !empty($form[$type])) {
         if (!$microarticle) {
           os2web_borger_dk_fix_disabled($form[$type]);
         }
       }
       if ($type == 'field_os2web_byline' && !empty($form[$type])) {
-        $form[$type]['#format'] = 'plaintext';
+        $form[$type]['#format'] = BORGERDK_TEXT_FORMAT_PLAIN;
       }
     }
 
@@ -432,10 +437,10 @@ function os2web_borger_dk_after_build($form, &$form_state) {
     foreach ($locked_os2web_types as $type => $locked) {
       // If locked = 1 then disable the field.
       if (isset($form[$type]) && $locked == 1) {
-        $form[$type]['#required'] = 0;
-        $form[$type]['und']['#required'] = 0;
-        $form[$type]['und'][0]['#required'] = 0;
-        $form[$type]['und'][0]['value']['#required'] = 0;
+        $form[$type]['#required'] = FALSE;
+        $form[$type]['und']['#required'] = FALSE;
+        $form[$type]['und'][0]['#required'] = FALSE;
+        $form[$type]['und'][0]['value']['#required'] = FALSE;
         os2web_borger_dk_fix_disabled($form[$type]);
       }
     }
@@ -456,10 +461,15 @@ function os2web_borger_dk_after_build($form, &$form_state) {
         hide($form[$type]['und']);
       }
     }
-    unset($form['title']);
+    $form['field_os2web_borger_dk_borgerurl']['#required'] = FALSE;
+    $form['field_os2web_borger_dk_borgerurl']['und']['#required'] = FALSE;
+    $form['field_os2web_borger_dk_borgerurl']['und'][0]['#required'] = FALSE;
+    $form['field_os2web_borger_dk_borgerurl']['und'][0]['value']['#required'] = FALSE;
+    $form['title']['#required'] = FALSE;
+    $form['title']['#access'] = FALSE;
 
     if (isset($form['path']['pathauto']['#default_value'])) {
-      $form['path']['pathauto']['#checked'] = 0;
+      $form['path']['pathauto']['#checked'] = FALSE;
     }
     $form['status'] = 0;
     $form['promote'] = 0;
@@ -1048,13 +1058,13 @@ function os2web_borger_dk_node_submit(&$node, $form, &$form_state) {
       $node->field_os2web_borger_dk_shortlist['und'][0]['safe_value'] = (!empty($article['huskeliste'])) ? $article['huskeliste'] : '';
       $node->field_os2web_borger_dk_recommend['und'][0]['safe_value'] = (!empty($article['anbefaler'])) ? $article['anbefaler'] : '';
 
-      $node->body['und'][0]['format'] = 'full_html';
-      $node->field_os2web_borger_dk_header['und'][0]['format'] = 'full_html';
-      $node->field_os2web_borger_dk_selfservi['und'][0]['format'] = 'full_html';
-      $node->field_os2web_borger_dk_byline['und'][0]['format'] = 'plaintext';
-      $node->field_os2web_borger_dk_legislati['und'][0]['format'] = 'full_html';
-      $node->field_os2web_borger_dk_shortlist['und'][0]['format'] = 'full_html';
-      $node->field_os2web_borger_dk_recommend['und'][0]['format'] = 'full_html';
+      $node->body['und'][0]['format'] = BORGERDK_TEXT_FORMAT_HTML;
+      $node->field_os2web_borger_dk_header['und'][0]['format'] = BORGERDK_TEXT_FORMAT_HTML;
+      $node->field_os2web_borger_dk_selfservi['und'][0]['format'] = BORGERDK_TEXT_FORMAT_HTML;
+      $node->field_os2web_borger_dk_byline['und'][0]['format'] = BORGERDK_TEXT_FORMAT_PLAIN;
+      $node->field_os2web_borger_dk_legislati['und'][0]['format'] = BORGERDK_TEXT_FORMAT_HTML;
+      $node->field_os2web_borger_dk_shortlist['und'][0]['format'] = BORGERDK_TEXT_FORMAT_HTML;
+      $node->field_os2web_borger_dk_recommend['und'][0]['format'] = BORGERDK_TEXT_FORMAT_HTML;
 
       $field_settings = $form_state['values']['os2web_borger_dk_field_settings'];
       // Check admin field settings : are there fields set as hidden by admin.
@@ -1261,7 +1271,7 @@ function _os2web_borger_dk_create_menu_page($item) {
     $node->title = $item['SiteTitle'];
     $node->body['und']['0']['value'] = '';
     $node->body['und']['0']['safe_value'] = '';
-    $node->body['und'][0]['format'] = 'full_html';
+    $node->body['und'][0]['format'] = BORGERDK_TEXT_FORMAT_HTML;
     $node = node_submit($node);
     node_save($node);
     return $node->nid;
@@ -1444,13 +1454,13 @@ function _os2web_borger_dk_batch_article_import($external_id_list, $max_count, $
         $node->field_os2web_borger_dk_shortlist['und'][0]['safe_value'] = (!empty($article['huskeliste'])) ? $article['huskeliste'] : '';
         $node->field_os2web_borger_dk_recommend['und'][0]['safe_value'] = (!empty($article['anbefaler'])) ? $article['anbefaler'] : '';
 
-        $node->body['und'][0]['format'] = 'full_html';
-        $node->field_os2web_borger_dk_header['und'][0]['format'] = 'full_html';
-        $node->field_os2web_borger_dk_selfservi['und'][0]['format'] = 'full_html';
-        $node->field_os2web_borger_dk_byline['und'][0]['format'] = 'plaintext';
-        $node->field_os2web_borger_dk_legislati['und'][0]['format'] = 'full_html';
-        $node->field_os2web_borger_dk_shortlist['und'][0]['format'] = 'full_html';
-        $node->field_os2web_borger_dk_recommend['und'][0]['format'] = 'full_html';
+        $node->body['und'][0]['format'] = BORGERDK_TEXT_FORMAT_HTML;
+        $node->field_os2web_borger_dk_header['und'][0]['format'] = BORGERDK_TEXT_FORMAT_HTML;
+        $node->field_os2web_borger_dk_selfservi['und'][0]['format'] = BORGERDK_TEXT_FORMAT_HTML;
+        $node->field_os2web_borger_dk_byline['und'][0]['format'] = BORGERDK_TEXT_FORMAT_PLAIN;
+        $node->field_os2web_borger_dk_legislati['und'][0]['format'] = BORGERDK_TEXT_FORMAT_HTML;
+        $node->field_os2web_borger_dk_shortlist['und'][0]['format'] = BORGERDK_TEXT_FORMAT_HTML;
+        $node->field_os2web_borger_dk_recommend['und'][0]['format'] = BORGERDK_TEXT_FORMAT_HTML;
 
         $field_settings = $form_state['values']['os2web_borger_dk_field_settings'];
         // Check admin field settings : are there fields set as hidden by admin.
@@ -1683,13 +1693,13 @@ function _os2web_borger_dk_create_borger_dk_meun_structure($item, $total, $menu_
                 $node->field_os2web_borger_dk_shortlist['und'][0]['safe_value'] = (!empty($article['huskeliste'])) ? $article['huskeliste'] : '';
                 $node->field_os2web_borger_dk_recommend['und'][0]['safe_value'] = (!empty($article['anbefaler'])) ? $article['anbefaler'] : '';
 
-                $node->body['und'][0]['format'] = 'full_html';
-                $node->field_os2web_borger_dk_header['und'][0]['format'] = 'full_html';
-                $node->field_os2web_borger_dk_selfservi['und'][0]['format'] = 'full_html';
-                $node->field_os2web_borger_dk_byline['und'][0]['format'] = 'plaintext';
-                $node->field_os2web_borger_dk_legislati['und'][0]['format'] = 'full_html';
-                $node->field_os2web_borger_dk_shortlist['und'][0]['format'] = 'full_html';
-                $node->field_os2web_borger_dk_recommend['und'][0]['format'] = 'full_html';
+                $node->body['und'][0]['format'] = BORGERDK_TEXT_FORMAT_HTML;
+                $node->field_os2web_borger_dk_header['und'][0]['format'] = BORGERDK_TEXT_FORMAT_HTML;
+                $node->field_os2web_borger_dk_selfservi['und'][0]['format'] = BORGERDK_TEXT_FORMAT_HTML;
+                $node->field_os2web_borger_dk_byline['und'][0]['format'] = BORGERDK_TEXT_FORMAT_PLAIN;
+                $node->field_os2web_borger_dk_legislati['und'][0]['format'] = BORGERDK_TEXT_FORMAT_HTML;
+                $node->field_os2web_borger_dk_shortlist['und'][0]['format'] = BORGERDK_TEXT_FORMAT_HTML;
+                $node->field_os2web_borger_dk_recommend['und'][0]['format'] = BORGERDK_TEXT_FORMAT_HTML;
 
                 $field_settings = $form_state['values']['os2web_borger_dk_field_settings'];
                 // Check admin field settings : are there fields
@@ -1766,7 +1776,7 @@ function _os2web_borger_dk_create_borger_dk_meun_structure($item, $total, $menu_
         $node = node_load($node_id);
         $node->body['und']['0']['value'] = $body_content;
         $node->body['und']['0']['safe_value'] = $body_content;
-        $node->body['und'][0]['format'] = 'full_html';
+        $node->body['und'][0]['format'] = BORGERDK_TEXT_FORMAT_HTML;
         node_save($node);
       }
     }*/
@@ -1814,13 +1824,13 @@ function _os2web_borger_dk_import_supplement_article($value) {
     $node->field_os2web_borger_dk_shortlist['und'][0]['safe_value'] = (!empty($article['huskeliste'])) ? $article['huskeliste'] : '';
     $node->field_os2web_borger_dk_recommend['und'][0]['safe_value'] = (!empty($article['anbefaler'])) ? $article['anbefaler'] : '';
 
-    $node->body['und'][0]['format'] = 'full_html';
-    $node->field_os2web_borger_dk_header['und'][0]['format'] = 'full_html';
-    $node->field_os2web_borger_dk_selfservi['und'][0]['format'] = 'full_html';
-    $node->field_os2web_borger_dk_byline['und'][0]['format'] = 'plaintext';
-    $node->field_os2web_borger_dk_legislati['und'][0]['format'] = 'full_html';
-    $node->field_os2web_borger_dk_shortlist['und'][0]['format'] = 'full_html';
-    $node->field_os2web_borger_dk_recommend['und'][0]['format'] = 'full_html';
+    $node->body['und'][0]['format'] = BORGERDK_TEXT_FORMAT_HTML;
+    $node->field_os2web_borger_dk_header['und'][0]['format'] = BORGERDK_TEXT_FORMAT_HTML;
+    $node->field_os2web_borger_dk_selfservi['und'][0]['format'] = BORGERDK_TEXT_FORMAT_HTML;
+    $node->field_os2web_borger_dk_byline['und'][0]['format'] = BORGERDK_TEXT_FORMAT_PLAIN;
+    $node->field_os2web_borger_dk_legislati['und'][0]['format'] = BORGERDK_TEXT_FORMAT_HTML;
+    $node->field_os2web_borger_dk_shortlist['und'][0]['format'] = BORGERDK_TEXT_FORMAT_HTML;
+    $node->field_os2web_borger_dk_recommend['und'][0]['format'] = BORGERDK_TEXT_FORMAT_HTML;
 
     $field_settings = $form_state['values']['os2web_borger_dk_field_settings'];
     // Check admin field settings : are there fields set as hidden by admin.
@@ -2294,31 +2304,31 @@ function _os2web_borger_dk_update_node_content($nid, $article) {
 
   $node->body['und'][0]['value'] = $body;
   $node->body['und'][0]['safe_value'] = $body;
-  $node->body['und'][0]['format'] = 'full_html';
+  $node->body['und'][0]['format'] = BORGERDK_TEXT_FORMAT_HTML;
 
   $node->field_os2web_borger_dk_byline['und'][0]['value'] = (!empty($article['byline'])) ? $article['byline'] : '';
   $node->field_os2web_borger_dk_byline['und'][0]['safe_value'] = (!empty($article['byline'])) ? $article['byline'] : '';
-  $node->field_os2web_borger_dk_byline['und'][0]['format'] = 'plaintext';
+  $node->field_os2web_borger_dk_byline['und'][0]['format'] = BORGERDK_TEXT_FORMAT_PLAIN;
 
   $node->field_os2web_borger_dk_header['und'][0]['value'] = (!empty($article['header'])) ? $article['header'] : '';
   $node->field_os2web_borger_dk_header['und'][0]['safe_value'] = (!empty($article['header'])) ? $article['header'] : '';
-  $node->field_os2web_borger_dk_header['und'][0]['format'] = 'full_html';
+  $node->field_os2web_borger_dk_header['und'][0]['format'] = BORGERDK_TEXT_FORMAT_HTML;
 
   $node->field_os2web_borger_dk_selfservi['und'][0]['value'] = (!empty($article['selvbetjeningslinks'])) ? $article['selvbetjeningslinks'] : '';
   $node->field_os2web_borger_dk_selfservi['und'][0]['safe_value'] = (!empty($article['selvbetjeningslinks'])) ? $article['selvbetjeningslinks'] : '';
-  $node->field_os2web_borger_dk_selfservi['und'][0]['format'] = 'full_html';
+  $node->field_os2web_borger_dk_selfservi['und'][0]['format'] = BORGERDK_TEXT_FORMAT_HTML;
 
   $node->field_os2web_borger_dk_recommend['und'][0]['value'] = (!empty($article['anbefaler'])) ? $article['anbefaler'] : '';
   $node->field_os2web_borger_dk_recommend['und'][0]['safe_value'] = (!empty($article['anbefaler'])) ? $article['anbefaler'] : '';
-  $node->field_os2web_borger_dk_recommend['und'][0]['format'] = 'full_html';
+  $node->field_os2web_borger_dk_recommend['und'][0]['format'] = BORGERDK_TEXT_FORMAT_HTML;
 
   $node->field_os2web_borger_dk_legislati['und'][0]['value'] = (!empty($article['lovgivning'])) ? $article['lovgivning'] : '';
   $node->field_os2web_borger_dk_legislati['und'][0]['safe_value'] = (!empty($article['lovgivning'])) ? $article['lovgivning'] : '';
-  $node->field_os2web_borger_dk_legislati['und'][0]['format'] = 'full_html';
+  $node->field_os2web_borger_dk_legislati['und'][0]['format'] = BORGERDK_TEXT_FORMAT_HTML;
 
   $node->field_os2web_borger_dk_shortlist['und'][0]['value'] = (!empty($article['huskeliste'])) ? $article['huskeliste'] : '';
   $node->field_os2web_borger_dk_shortlist['und'][0]['safe_value'] = (!empty($article['huskeliste'])) ? $article['huskeliste'] : '';
-  $node->field_os2web_borger_dk_shortlist['und'][0]['format'] = 'full_html';
+  $node->field_os2web_borger_dk_shortlist['und'][0]['format'] = BORGERDK_TEXT_FORMAT_HTML;
 
   // Some fields from borger_dk_article can not be syncronized nor changed here.
   $node->os2web_borger_dk_article['external_id'] = $article['external_id'];
