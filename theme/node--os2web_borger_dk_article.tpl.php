@@ -1,18 +1,10 @@
-<div id="node-<?php print $node->nid; ?>" class="<?php print $classes; ?> clearfix"<?php print $attributes; ?>>
+<article id="node-<?php print $node->nid; ?>" class="<?php print $classes; ?> clearfix"<?php print $attributes; ?>>
   <?php print render($title_prefix); ?>
-
-<?php /**  <h2<?php print $title_attributes; ?>>
-      <a href="<?php print 'node/' . $node->nid; ?>"><?php print $node->title; ?></a>
-    </h2>
-*/?>
-  <?php print render($title_suffix); ?>
-
 
   <div id='region-content' class="content"<?php print $content_attributes; ?>>
 
   <?php
   if ($node->type == 'os2web_borger_dk_article') {
-
     $content_field = array();
     $fields = $node->os2web_borger_dk_article['field_settings'];
     // First get admin display settings.
@@ -23,14 +15,11 @@
     if ($microarticle) {
       $field_microarticle_settings = $node->os2web_borger_dk_microarticle['field_microarticle_settings'];
     }
-
     foreach ($admin_display_fields as $type => $value) {
-
       // If ADMIN set this field to display.
       if ($admin_display_fields[$type]) {
         $arr = $node-> $type;
-
-        if (count($arr) > 0 && $type != 'title' && $type != 'field_os2web_borger_dk_image') {
+      if (count($arr) > 0 && $type != 'title' && $type != 'field_os2web_borger_dk_image') {
           $content_field[$type] = $arr['und']['0']['value'];
         }
         elseif (count($arr) > 0 && $type == 'field_os2web_borger_dk_image') {
@@ -40,15 +29,15 @@
         }
         else {
           $content_field[$type] = '';
-        }
+       }
         // Microarticles : if microarticle is set up to show by admin.
-        if ($microarticle && $type == 'body' && !empty($field_microarticle_settings)) {
+        if ($microarticle && $type == 'body') {
           // Check if content field is body and field_microarticle_settings
           // is NOT empty.
           // The field_microarticle_setting will be empty when a new
           // article is imported and shown in a form, then node_view
           // will display full body text.
-
+          if (!empty($field_microarticle_settings)) {
             $body_text = $node->body['und']['0']['value'];
             // Link break in body_text: in windows \r\n, linux \n.
             preg_match("/<\/div>\n/", $body_text, $link_break);
@@ -72,23 +61,27 @@
                 }
               }
             }
-            // Content body shows only visible microarticles/ part of body_text.
             $show_div = str_replace("</h2>","</h2><a href='#' class='gplus'>+</a>",$show_div);
+            // Content body shows only visible microarticles/ part of body_text.
             $content_field[$type] = $show_div;
+          }
+          else {
+            $show_div = $node->body['und']['0']['value'];
+            $show_div = str_replace("</h2>","</h2><a href='#' class='gplus'>+</a>",$show_div);
+            $content_field['body'] = $show_div;
+          }
         }
-        elseif ($type == 'body') {
+        elseif (!$microarticle && $type == 'body') {
           $show_div = $node->body['und']['0']['value'];
           $show_div = str_replace("</h2>","</h2><a href='#' class='gplus'>+</a>",$show_div);
           $content_field['body'] = $show_div;
         }
-
         // End of microarticles.
         // If EDITOR set this field to be hidden.
         if ($fields[$type] == '0') {
             $content_field[$type] = '';
         }
       }
-
       // If ADMIN set this field to be hidden.
       else {
           $content_field[$type] = '';
@@ -96,113 +89,95 @@
     }
     drupal_add_js(drupal_get_path('module', 'os2web_borger_dk') . '/js/os2web_borger_dk.js', 'file');
     drupal_add_css(drupal_get_path('module', 'os2web_borger_dk') . '/css/os2web_borger_dk.css', 'file');
-
-    // Set the page-title if field-value is given.
-   // if (!empty($node->field_os2web_borger_dk_pagetitle['und'][0]['value'])) {
-      //drupal_set_title($node->field_os2web_borger_dk_pagetitle['und'][0]['value']);
-    //}
   }
   ?>
 
-  <?php
-   print "<div class='borger_dk-region-stack3'>
-            <div class='inside'>";
-    if (!empty($content_field['field_os2web_borger_dk_image'])) {
-      print "<div class='borger_dk_billede'>";
-      print render($content_field['field_os2web_borger_dk_image']);
+  <?php print render($content['field_os2web_borger_dk_image']);?>
+
+  <header>
+    <h1<?php print $title_attributes; ?>>
+      <?php print $node->title; ?>
+    </h1>
+  </header>
+  <div class="wrap">
+    <?php print render($title_suffix); ?>
+    <?php
+      print "<div class='borger_dk-region-div3'>";
+      if (!empty($content_field['field_os2web_borger_dk_header'])) {
+        print "<div class='borger_dk_header_text field-item' id='borger_dk_header_text'>";
+        print render($content_field['field_os2web_borger_dk_header']);
+        print "</div>";
+      }
       print "</div>";
-    }
-
-    if (!empty($content_field['field_os2web_borger_dk_header'])) {
-      print "<div class='borger_dk_header' id='borger_dk_header'>";
-      print render($content_field['field_os2web_borger_dk_header']);
-      print "</div>";
-    }
-    print "</div></div>";
-  ?>
-  <div class="content clearfix"<?php print $content_attributes; ?>>
-  <?php
-    if (!empty($content_field['field_os2web_borger_dk_selfservi'])) {
-      print "<div class='borger_dk-region-stack2'>
-              <div class='inside'>
-                <div class='os2web_borger_dk_selfservi'>";
-      print render($content_field['field_os2web_borger_dk_selfservi']);
-      print   '</div>
-              </div>
-            </div>';
-    }
-
-  ?>
-  </div>
-  <div class="content clearfix"<?php print $content_attributes; ?>>
-  <?php
-    print "<div class='borger_dk-region-stack3'>
-            <div class='inside'>";
-    if (!empty($content_field['field_os2web_borger_dk_pre_text'])) {
-      print "<div class='borger_dk-field_os2web-borger-dk-pre_text'>";
-      print render($content_field['field_os2web_borger_dk_pre_text']);
-      print '</div>';
-      print "<div class='panel-separator'></div>";
-    }
-
-    if (!empty($content_field['body'])) {
-      print "<div class='borger_dk-body node-body' id='borger_dk-body'>";
-      print "<div class='borger_dk_body_intro_text'><span class='intro_text_text'>" . "Læs om " . $node->title .'</span>';
-      print "<div class='intro_text_buttons'><a href='#' class='gplus_all gplus_gminus'>Alle<span class='gplus_button'>+</span></a>";
-      print "<a href='#' class='gminus_all gplus_gminus'>Alle<span class='gminus_button'>-</span></a></div>";
-
-      print "</div>";
-      print render($content_field['body']);
-      print '</div>';
-      print "<div class='panel-separator'></div>";
-    }
-    if (!empty($content_field['field_os2web_borger_dk_post_text'])) {
-      print "<div class='borger_dk-field_os2web-borger-dk-post_text'>";
-      print render($content_field['field_os2web_borger_dk_post_text']);
-      print '</div>';
-      print "<div class='panel-separator'></div>";
-    }
-
-    if (!empty($content_field['field_os2web_borger_dk_legislati'])) {
-      print "<div class='borger_dk-field_os2web-borger-dk-legislati'>";
-      print render($content['field_os2web_borger_dk_legislati']);
-      print "</div>";
-    }
-    print "</div></div>";
-
-    print "<div class='borger_dk-region-stack4'>";
-    print   "<div class= 'inside'>";
-    if (!empty($content_field['field_os2web_borger_dk_recommend'])) { 
-      print   "<div class='borger_dk-field_os2web-borger-dk-recommend'>";
-      print     render($content_field['field_os2web_borger_dk_recommend']);
-      print   "</div>";
-      print   "<div class='panel-separator'></div>";
-      
-    }
-    if (!empty($content_field['field_os2web_borger_dk_shortlist'])) {
-      print   "<div class='borger_dk-field_os2web-borger-dk-shortlist'> ";
-      print     render($content_field['field_os2web_borger_dk_shortlist']);
-      print   "</div>";
-    }
-    if (!empty($content_field['field_os2web_borger_dk_byline'])) {
-      print   "<div class='borger_dk-field_os2web-borger-dk-byline'> ";
-      print    render($content_field['field_os2web_borger_dk_byline']);
-      print   "</div>";
-    }
-
-    print "</div></div>";
-    
-//      print render($content);
     ?>
+    <div class="content clearfix"<?php print $content_attributes; ?>>
+    <?php
+      print "<div class=''>";
+      if (!empty($content_field['field_os2web_borger_dk_pre_text'])) {
+        print "<div class='borger_dk-field_os2web-borger-dk-pre_text'>";
+        print render($content_field['field_os2web_borger_dk_pre_text']);
+        print '</div>';
+        print "<div class='panel-separator'></div>";
+        print "</div>";
+      }?>
+    <?php
+      if (!empty($content_field['field_os2web_borger_dk_selfservi'])) {
+        print "<div class='borger_dk-region-div2'>
+                <div class=''>
+                  <div class='os2web_borger_dk_selfservi'>";
+        print render($content_field['field_os2web_borger_dk_selfservi']);
+        print   '</div>
+                </div>
+              </div>';
+      }
+      if (!empty($content_field['body'])) {
+        print "<div class='borger_dk-body node-body inner' id='borger_dk-body'>";
+        print "<div class='borger_dk_body_intro_text'><span class='intro_text_text'>" . "Læs om " . $node->title .'</span>';
+        print "<div class='intro_text_buttons'><span>Åben/luk alle</span><a href='#' class='gplus_all gplus_gminus'><span class='gplus_button'>+</span></a>";
+        print "<a href='#' class='gminus_all gplus_gminus'><span class='gminus_button'>-</span></a></div>";
+        print "</div>";
+        print render($content_field['body']);
+        print '</div>';
+        print "<div class='panel-separator'></div>";
+      }
+      if (!empty($content_field['field_os2web_borger_dk_post_text'])) {
+        print "<div class='borger_dk-field_os2web-borger-dk-post_text'>";
+        print render($content_field['field_os2web_borger_dk_post_text']);
+        print '</div>';
+        print "<div class='panel-separator'></div>";
+      }
+      if (!empty($content['field_os2web_borger_dk_legislati'])) {
+        print "<div class='borger_dk-field_os2web-borger-dk-legislati'>";
+        print render($content['field_os2web_borger_dk_legislati']);
+        print "</div>";
+      }
+      print "<div class='borger_dk-region-div4 inner'>";
+      if (!empty($content_field['field_os2web_borger_dk_recommend'])) {
+        print   "<div class='borger_dk-field_os2web-borger-dk-recommend'>";
+        print     render($content_field['field_os2web_borger_dk_recommend']);
+        print   "</div>";
+        print   "<div class='panel-separator'></div>";
+      }
+      if (!empty($content_field['field_os2web_borger_dk_shortlist'])) {
+        print   "<div class='borger_dk-field_os2web-borger-dk-shortlist'> ";
+        print     render($content_field['field_os2web_borger_dk_shortlist']);
+        print   "</div>";
+      }
+      if (!empty($content_field['field_os2web_borger_dk_byline'])) {
+        print   "<div class='borger_dk-field_os2web-borger-dk-byline'> ";
+        print    render($content_field['field_os2web_borger_dk_byline']);
+        print   "</div>";
+      }
+      print "</div>";
+    ?>
+      <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-53274bd66f9bc001" async="async"></script>
+      <div class="addthis_sharing_toolbox"></div>
+
     </div>
+
   </div>
 
   <?php
-    // Remove the "Add new comment" link on the teaser page or if the comment
-    // form is being displayed on the same page.
-   // if ($teaser || !empty($content['comments']['comment_form'])) {
-      //unset($content['links']['comment']['#links']['comment-add']);
-    //}
     // Only display the wrapper div if there are links.
     $links = render($content['links']);
     if ($links):
@@ -213,5 +188,5 @@
   <?php endif; ?>
 
   <?php print render($content['comments']); ?>
-
-</div>
+  </div>
+</article>
