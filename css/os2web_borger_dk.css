@@ -3,26 +3,9 @@
   margin-bottom: 2px;
   padding: 5px 0;
   display: inline-block;
-  width: 95%;
+  width: 90%;
   background: none;
   margin-top: 5px;
-}
-
-#borger_dk-body h5 {
-  padding: 15px 0;
-  font-size: 16px !important;
-}
-
-#borger_dk-body p {
-  color: #4A4A4A;
-  font-size: 13px;
-  line-height: 20px;
-}
-
-#borger_dk-body {
-  color: #4A4A4A;
-  font-size: 13px;
-  line-height: 19px;
 }
 
 div.microArticle a {
@@ -61,20 +44,6 @@ div.microArticle a {
   padding-bottom: 5px;
 }
 
-.os2web_borger_dk_selfservi ul li,
-.borger_dk-region-stack2 ul li {
-  line-height: 22px;
-  list-style-image: url("../images/arrowGreen.png");
-
-}
-
-.borger_dk-region-stack3 ul li,
-.borger_dk-region-stack4 ul li {
-  line-height: 20px;
-  list-style-image: url("../images/arrowGreen.png");
-}
-
-
 .os2web_borger_dk_selfservi ul li a, .os2web_borger_dk_selfservi a:link{
   color: #526A27;
   font-size: 13px;
@@ -99,10 +68,8 @@ div.microArticle a {
 }
 
 .borger_dk_body_intro_text {
-  font-size: 20px;
   font-weight: 300;
-  padding-bottom: 10px;
-  padding-top: 15px;
+  font-size: 16px;
   margin-bottom: 20px;
 }
 
@@ -168,6 +135,7 @@ div.microArticle a {
   float: right;
   padding-right: 10px;
 }
+
 a.gplus {
   display: inline-block;
   background-image: url(../images/foldOut.png);
