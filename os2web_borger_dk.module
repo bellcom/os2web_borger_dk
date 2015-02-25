@@ -49,7 +49,14 @@ function _os2web_borger_dk_autocomplete_callback($string = '') {
   $matches = array();
 
   if ($string) {
-    $result = db_query("SELECT `ArticleID`, `ArticleStatus`, `ArticleTitle` FROM {os2web_borger_dk_article_titles} WHERE `ArticleStatus` >= 0 AND LOWER(ArticleTitle) LIKE LOWER('" . $string . "%') LIMIT 10");
+
+    $query = db_select('os2web_borger_dk_article_titles', 'o')
+      ->fields('o', array('ArticleID', 'ArticleStatus', 'ArticleTitle'))
+      ->condition('o.ArticleStatus', 0, '>=')
+      ->condition('o.ArticleTitle', db_like($string) . '%', 'LIKE')
+      ->range(0, 10);
+    $result = $query->execute();
+
     // Add matches to $matches.
     foreach ($result as $row) {
       if ($row->ArticleStatus > 0) {
