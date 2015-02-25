@@ -2975,42 +2975,42 @@ function _os2web_borger_dk_translate_soap_fault($borgerdk_id, $faultcode, $fault
 
 /**
  * Function _os2web_borger_dk_check_webservice_constraints().
+ *
+ * Checking if the webservice constraints has been reached, and in that case
+ * delaying the script.
  */
 function _os2web_borger_dk_check_webservice_constraints() {
+  $time = time();
+
   // We start of by getting the webservice request-limits.
   $webservice_request_limit = variable_get('os2web_borger_dk_webservice_request_limit', 100);
   $webservice_time_limit = variable_get('os2web_borger_dk_webservice_time_limit', 60);
+
   // And we keep track of the number of webservice-requests per timeperiod.
   $os2web_borger_dk_article_count_no = variable_get('os2web_borger_dk_webservice_request_counter', 0);
-  $os2web_borger_dk_article_start_time = variable_get('os2web_borger_dk_webservice_time_counter', 1970);
+  $os2web_borger_dk_article_start_time = variable_get('os2web_borger_dk_webservice_time_counter', 0);
+
   // We restart the counters if the timer is too old.
-  if ($os2web_borger_dk_article_start_time < (time() - $webservice_time_limit)) {
+  if ($os2web_borger_dk_article_start_time < ($time - $webservice_time_limit)) {
     $os2web_borger_dk_article_count_no = 0;
-    $os2web_borger_dk_article_start_time = time();
-    variable_set('os2web_borger_dk_webservice_request_counter', 0);
-    variable_set('os2web_borger_dk_webservice_time_counter', time());
+    $os2web_borger_dk_article_start_time = $time;
+    variable_set('os2web_borger_dk_webservice_request_counter', $os2web_borger_dk_article_count_no);
+    variable_set('os2web_borger_dk_webservice_time_counter', $os2web_borger_dk_article_start_time);
   }
 
   // Then we check if the limits has been reached, and it's time for a break.
-  if (($webservice_time_limit >= (time() - $os2web_borger_dk_article_start_time)) ||
-      ($webservice_request_limit >= $os2web_borger_dk_article_count_no)) {
+  if (($webservice_time_limit >= ($time - $os2web_borger_dk_article_start_time)) &&
+      ($webservice_request_limit <= $os2web_borger_dk_article_count_no)) {
     // We have reached the work-load limit of 100 items per minute, and must
     // take a small break or the webservice will stop answering us.
-    sleep($webservice_time_limit - (time() - $os2web_borger_dk_article_start_time));
+    sleep($webservice_time_limit - ($time - $os2web_borger_dk_article_start_time));
 
     // Then we reset/store the counters for limiting the webservice work-load.
     $os2web_borger_dk_article_count_no = 0;
     $os2web_borger_dk_article_start_time = time();
-    variable_set('os2web_borger_dk_webservice_time_counter', time());
+    variable_set('os2web_borger_dk_webservice_time_counter', $os2web_borger_dk_article_start_time);
   }
 
-  // TODO: Test this function by:
-  // 1) Increase counter by 10 instead of by 1.
-  // 2) Reduce request_limit to 20 instead of 100.
-  // 3) Import 3 articles within time-limit (and perhaps increase time-limit).
-  // Update the work-load item counter.
-  $os2web_borger_dk_article_count_no += 1;
-  variable_set('os2web_borger_dk_webservice_request_counter', $os2web_borger_dk_article_count_no);
 }
 
 /**
