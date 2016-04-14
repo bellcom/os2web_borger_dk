@@ -801,7 +801,8 @@ function os2web_borger_dk_update_article($nid) {
   // Now we update the node content with the fetched article content.
   $node = _os2web_borger_dk_update_node_content($nid, $article);
   if (variable_get('os2web_borger_dk_microarticle_active')) {
-    _os2web_borger_dk_microarticle_helper($article['kernetekst'], $node, FALSE);
+    $body_text = isset($node->body[LANGUAGE_NONE][0]['value']) ? $node->body[LANGUAGE_NONE][0]['value'] : '';
+    _os2web_borger_dk_microarticle_helper($body_text, $node, FALSE);
   }
   node_save($node);
 
@@ -851,7 +852,7 @@ function os2web_borger_dk_microarticles_update_submit($form, &$form_state) {
     node_save($node);
 
     // Update microarticle field setting.
-     _os2web_borger_dk_microarticle_helper($article['kernetekst'], $node, FALSE);
+     _os2web_borger_dk_microarticle_helper($body, $node, FALSE);
 
     // And we notify the user that the article has been updated.
     drupal_set_message(t('The microarticles have been updated'), 'status');
@@ -998,7 +999,6 @@ function _os2web_borger_dk_microarticle_helper($body_text, $node, $view = FALSE)
   $xpath = new DOMXPath($doc);
 
   $results = $xpath->query("//*[@class='microArticle']");
-
   $microno = 0;
   foreach ($results as $item) {
     $microno++;
@@ -1049,6 +1049,7 @@ function _os2web_borger_dk_microarticle_helper($body_text, $node, $view = FALSE)
     // End of body text (Article text).
   }
   if (!$view && is_object($node)) {
+
     $serialized_microarticle = serialize($field_microarticle_settings);
     db_update('os2web_borger_dk_article')
         ->fields(array(
