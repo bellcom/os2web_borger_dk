@@ -933,13 +933,16 @@ function os2web_borger_dk_node_submit(&$node, $form, &$form_state) {
             return;
           }
           elseif ($data->ArticleStatus > 0) {
-            // We have already imported this article
-            // and node->nid = ArticleStatus.
-            drupal_set_message(t('The Borger.dk article with title "!title" has already been imported.', array(
-              '!title' => $borger_dk_title)), 'status');
-            drupal_set_message(t('You can re-import the article by clicking on the "Update now"-button below.'), 'status');
-            drupal_goto('node/' . $data->ArticleStatus . '/edit');
-            return;
+            $allow_duplicate_import = variable_get('os2web_borger_dk_import_duplicate', 0);
+            if (!$allow_duplicate_import) {
+              // We have already imported this article
+              // and node->nid = ArticleStatus.
+              drupal_set_message(t('The Borger.dk article with title "!title" has already been imported.', array(
+                '!title' => $borger_dk_title)), 'status');
+              drupal_set_message(t('You can re-import the article by clicking on the "Update now"-button below.'), 'status');
+              drupal_goto('node/' . $data->ArticleStatus . '/edit');
+              return;
+            }
           }
           elseif ($data->ArticleStatus == 0) {
             $aid = $data->ArticleID;
