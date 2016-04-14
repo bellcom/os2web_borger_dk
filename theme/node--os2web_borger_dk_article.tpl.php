@@ -1,10 +1,98 @@
-<article id="node-<?php print $node->nid; ?>" class="<?php print $classes; ?> clearfix"<?php print $attributes; ?>>
+<?php
+
+/**
+ * @file
+ * Bartik's theme implementation to display a node.
+ *
+ * Available variables:
+ * - $title: the (sanitized) title of the node.
+ * - $content: An array of node items. Use render($content) to print them all,
+ *   or print a subset such as render($content['field_example']). Use
+ *   hide($content['field_example']) to temporarily suppress the printing of a
+ *   given element.
+ * - $user_picture: The node author's picture from user-picture.tpl.php.
+ * - $date: Formatted creation date. Preprocess functions can reformat it by
+ *   calling format_date() with the desired parameters on the $created variable.
+ * - $name: Themed username of node author output from theme_username().
+ * - $node_url: Direct URL of the current node.
+ * - $display_submitted: Whether submission information should be displayed.
+ * - $submitted: Submission information created from $name and $date during
+ *   template_preprocess_node().
+ * - $classes: String of classes that can be used to style contextually through
+ *   CSS. It can be manipulated through the variable $classes_array from
+ *   preprocess functions. The default values can be one or more of the
+ *   following:
+ *   - node: The current template type; for example, "theming hook".
+ *   - node-[type]: The current node type. For example, if the node is a
+ *     "Blog entry" it would result in "node-blog". Note that the machine
+ *     name will often be in a short form of the human readable label.
+ *   - node-teaser: Nodes in teaser form.
+ *   - node-preview: Nodes in preview mode.
+ *   The following are controlled through the node publishing options.
+ *   - node-promoted: Nodes promoted to the front page.
+ *   - node-sticky: Nodes ordered above other non-sticky nodes in teaser
+ *     listings.
+ *   - node-unpublished: Unpublished nodes visible only to administrators.
+ * - $title_prefix (array): An array containing additional output populated by
+ *   modules, intended to be displayed in front of the main title tag that
+ *   appears in the template.
+ * - $title_suffix (array): An array containing additional output populated by
+ *   modules, intended to be displayed after the main title tag that appears in
+ *   the template.
+ *
+ * Other variables:
+ * - $node: Full node object. Contains data that may not be safe.
+ * - $type: Node type; for example, story, page, blog, etc.
+ * - $comment_count: Number of comments attached to the node.
+ * - $uid: User ID of the node author.
+ * - $created: Time the node was published formatted in Unix timestamp.
+ * - $classes_array: Array of html class attribute values. It is flattened
+ *   into a string within the variable $classes.
+ * - $zebra: Outputs either "even" or "odd". Useful for zebra striping in
+ *   teaser listings.
+ * - $id: Position of the node. Increments each time it's output.
+ *
+ * Node status variables:
+ * - $view_mode: View mode; for example, "full", "teaser".
+ * - $teaser: Flag for the teaser state (shortcut for $view_mode == 'teaser').
+ * - $page: Flag for the full page state.
+ * - $promote: Flag for front page promotion state.
+ * - $sticky: Flags for sticky post setting.
+ * - $status: Flag for published status.
+ * - $comment: State of comment settings for the node.
+ * - $readmore: Flags true if the teaser content of the node cannot hold the
+ *   main body content.
+ * - $is_front: Flags true when presented in the front page.
+ * - $logged_in: Flags true when the current user is a logged-in member.
+ * - $is_admin: Flags true when the current user is an administrator.
+ *
+ * Field variables: for each field instance attached to the node a corresponding
+ * variable is defined; for example, $node->body becomes $body. When needing to
+ * access a field's raw values, developers/themers are strongly encouraged to
+ * use these variables. Otherwise they will have to explicitly specify the
+ * desired field language; for example, $node->body['en'], thus overriding any
+ * language negotiation rule that was previously applied.
+ *
+ * @see template_preprocess()
+ * @see template_preprocess_node()
+ * @see template_process()
+ */
+?>
+<div id="node-<?php print $node->nid; ?>" class="<?php print $classes; ?> clearfix"<?php print $attributes; ?>>
   <?php print render($title_prefix); ?>
+
+<?php /**  <h2<?php print $title_attributes; ?>>
+      <a href="<?php print 'node/' . $node->nid; ?>"><?php print $node->title; ?></a>
+    </h2>
+*/?>
+  <?php print render($title_suffix); ?>
+
 
   <div id='region-content' class="content"<?php print $content_attributes; ?>>
 
   <?php
   if ($node->type == 'os2web_borger_dk_article') {
+
     $content_field = array();
     $fields = $node->os2web_borger_dk_article['field_settings'];
     // First get admin display settings.
@@ -15,73 +103,84 @@
     if ($microarticle) {
       $field_microarticle_settings = $node->os2web_borger_dk_microarticle['field_microarticle_settings'];
     }
+
     foreach ($admin_display_fields as $type => $value) {
+
       // If ADMIN set this field to display.
       if ($admin_display_fields[$type]) {
         $arr = $node-> $type;
-      if (count($arr) > 0 && $type != 'title' && $type != 'field_os2web_borger_dk_image') {
-          $content_field[$type] = $arr['und']['0']['value'];
+
+      if (count($arr) > 0 && $type != 'title' && $type != 'field_billede') {
+          $content_field[$type] = $arr[LANGUAGE_NONE]['0']['value'];
         }
-        elseif (count($arr) > 0 && $type == 'field_os2web_borger_dk_image') {
-          $filepath = $arr['und']['0']['uri'];
-          $alt = $arr['und']['0']['alt'];
+        elseif (count($arr) > 0 && $type == 'field_billede') {
+          $filepath = $arr[LANGUAGE_NONE]['0']['uri'];
+          $alt = $arr[LANGUAGE_NONE]['0']['alt'];
           $content_field[$type] = theme('image', array('path' => $filepath, 'alt' => $alt, 'title' => $alt));
         }
         else {
           $content_field[$type] = '';
        }
         // Microarticles : if microarticle is set up to show by admin.
-        if ($microarticle && $type == 'body') {
+        if ($microarticle) {
           // Check if content field is body and field_microarticle_settings
           // is NOT empty.
           // The field_microarticle_setting will be empty when a new
           // article is imported and shown in a form, then node_view
           // will display full body text.
-          if (!empty($field_microarticle_settings)) {
-            $body_text = $node->body['und']['0']['value'];
-            // Link break in body_text: in windows \r\n, linux \n.
-            preg_match("/<\/div>\n/", $body_text, $link_break);
-            if (isset($link_break[0])) {
-              $div = preg_split("/\n<\/div>\n/", $body_text, -1, PREG_SPLIT_DELIM_CAPTURE);
-            }
-            else {
-              $div = preg_split('/\r\n<[\/]div>\r\n/', $body_text, -1, PREG_SPLIT_DELIM_CAPTURE);
-            }
-            $show_div = '';
-            foreach ($div as $key => $text) {
-              $microno = $key + 1;
-              $checkboxno = 'os2web_borger_dk_micro_' . $microno;
-              // The last div is a link break \n or \r\n.
-              if ($div[$key] != $div[(count($div) - 1)]) {
-                // If editor set this microarticle to be visible,(TRUE)
-                if ($field_microarticle_settings[$microno] != 0) {
-                  $show_div .= $div[$key];
-                  $show_div .= "\n</div>";
-                  $show_div .= "\n";
-                }
+          if ($type == 'body' && !empty($field_microarticle_settings)) {
+            $body_text = $node->body[LANGUAGE_NONE]['0']['value'];
+
+            $article_text = '';
+
+            $doc = new DOMDocument();
+            $doc->loadHTML('<?xml encoding="utf-8" ?>' . $body_text);
+            $xpath = new DOMXPath($doc);
+
+            $results = $xpath->query("//*[@class='microArticle']");
+
+            $microno = 0;
+            foreach ($results as $item) {
+              foreach ($item->getElementsByTagName('h2') as $articletitle) {
+                $title = trim($articletitle->nodeValue);
+              }
+
+              $text = '';
+              foreach ($item->getElementsByTagName('div')->item(0)->childNodes as $articletext) {
+                $text .= $doc->saveHTML($articletext);
+              }
+              $microno++;
+
+              if ($field_microarticle_settings[$microno] != 0) {
+                // Body text (Article text).
+                $article_text .= "<div class=\"microArticle\" id=\"microArticle" . $microno . "\">" . "\r\n";
+
+                $micro_h2 = "<h2 class=\"mArticle\" id=\"mArticle" . $microno . "\">";
+                $micro_h2 .= $title . "</h2>";
+
+                $micro_content = "<div class=\"mArticle" . $microno . " mArticle\">";
+                $micro_content .= $text . "\r\n    </div>";
+
+                $article_text .= $micro_h2 . "\r\n";
+                $article_text .= $micro_content;
+                $article_text .= "\r\n</div>\r\n\r\n";
               }
             }
-            $show_div = str_replace("</h2>","</h2><a href='#' class='gplus'>+</a>",$show_div);
             // Content body shows only visible microarticles/ part of body_text.
-            $content_field[$type] = $show_div;
-          }
-          else {
-            $show_div = $node->body['und']['0']['value'];
-            $show_div = str_replace("</h2>","</h2><a href='#' class='gplus'>+</a>",$show_div);
-            $content_field['body'] = $show_div;
+            $content_field[$type] = $article_text;
           }
         }
-        elseif (!$microarticle && $type == 'body') {
-          $show_div = $node->body['und']['0']['value'];
-          $show_div = str_replace("</h2>","</h2><a href='#' class='gplus'>+</a>",$show_div);
-          $content_field['body'] = $show_div;
+        elseif ($type == 'body') {
+          $content_field['body'] = $node->body[LANGUAGE_NONE]['0']['value'];
         }
+
         // End of microarticles.
         // If EDITOR set this field to be hidden.
         if ($fields[$type] == '0') {
             $content_field[$type] = '';
         }
       }
+
       // If ADMIN set this field to be hidden.
       else {
           $content_field[$type] = '';
@@ -89,95 +188,109 @@
     }
     drupal_add_js(drupal_get_path('module', 'os2web_borger_dk') . '/js/os2web_borger_dk.js', 'file');
     drupal_add_css(drupal_get_path('module', 'os2web_borger_dk') . '/css/os2web_borger_dk.css', 'file');
+
+    // Set the page-title if field-value is given.
+   // if (!empty($node->field_os2web_borger_dk_pagetitle[LANGUAGE_NONE][0]['value'])) {
+      //drupal_set_title($node->field_os2web_borger_dk_pagetitle[LANGUAGE_NONE][0]['value']);
+    //}
   }
   ?>
 
-  <?php print render($content['field_os2web_borger_dk_image']);?>
-
-  <header>
-    <h1<?php print $title_attributes; ?>>
-      <?php print $node->title; ?>
-    </h1>
-  </header>
-  <div class="wrap">
-    <?php print render($title_suffix); ?>
-    <?php
-      print "<div class='borger_dk-region-div3'>";
-      if (!empty($content_field['field_os2web_borger_dk_header'])) {
-        print "<div class='borger_dk_header_text field-item' id='borger_dk_header_text'>";
-        print render($content_field['field_os2web_borger_dk_header']);
-        print "</div>";
-      }
+  <?php
+   print "<div class='borger_dk-region-stack3'>
+            <div class='inside'>";
+    if (!empty($content_field['field_billede'])) {
+      print "<div class='borger_dk_billede'>";
+      print render($content_field['field_billede']);
       print "</div>";
-    ?>
-    <div class="content clearfix"<?php print $content_attributes; ?>>
-    <?php
-      print "<div class=''>";
-      if (!empty($content_field['field_os2web_borger_dk_pre_text'])) {
-        print "<div class='borger_dk-field_os2web-borger-dk-pre_text'>";
-        print render($content_field['field_os2web_borger_dk_pre_text']);
-        print '</div>';
-        print "<div class='panel-separator'></div>";
-        print "</div>";
-      }?>
-    <?php
-      if (!empty($content_field['field_os2web_borger_dk_selfservi'])) {
-        print "<div class='borger_dk-region-div2'>
-                <div class=''>
-                  <div class='os2web_borger_dk_selfservi'>";
-        print render($content_field['field_os2web_borger_dk_selfservi']);
-        print   '</div>
-                </div>
-              </div>';
-      }
-      if (!empty($content_field['body'])) {
-        print "<div class='borger_dk-body node-body inner' id='borger_dk-body'>";
-        print "<div class='borger_dk_body_intro_text'><span class='intro_text_text'>" . "Læs om " . $node->title .'</span>';
-        print "<div class='intro_text_buttons'><span>Åben/luk alle</span><a href='#' class='gplus_all gplus_gminus'><span class='gplus_button'>+</span></a>";
-        print "<a href='#' class='gminus_all gplus_gminus'><span class='gminus_button'>-</span></a></div>";
-        print "</div>";
-        print render($content_field['body']);
-        print '</div>';
-        print "<div class='panel-separator'></div>";
-      }
-      if (!empty($content_field['field_os2web_borger_dk_post_text'])) {
-        print "<div class='borger_dk-field_os2web-borger-dk-post_text'>";
-        print render($content_field['field_os2web_borger_dk_post_text']);
-        print '</div>';
-        print "<div class='panel-separator'></div>";
-      }
-      if (!empty($content['field_os2web_borger_dk_legislati'])) {
-        print "<div class='borger_dk-field_os2web-borger-dk-legislati'>";
-        print render($content['field_os2web_borger_dk_legislati']);
-        print "</div>";
-      }
-      print "<div class='borger_dk-region-div4 inner'>";
-      if (!empty($content_field['field_os2web_borger_dk_recommend'])) {
-        print   "<div class='borger_dk-field_os2web-borger-dk-recommend'>";
-        print     render($content_field['field_os2web_borger_dk_recommend']);
-        print   "</div>";
-        print   "<div class='panel-separator'></div>";
-      }
-      if (!empty($content_field['field_os2web_borger_dk_shortlist'])) {
-        print   "<div class='borger_dk-field_os2web-borger-dk-shortlist'> ";
-        print     render($content_field['field_os2web_borger_dk_shortlist']);
-        print   "</div>";
-      }
-      if (!empty($content_field['field_os2web_borger_dk_byline'])) {
-        print   "<div class='borger_dk-field_os2web-borger-dk-byline'> ";
-        print    render($content_field['field_os2web_borger_dk_byline']);
-        print   "</div>";
-      }
-      print "</div>";
-    ?>
-      <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-53274bd66f9bc001" async="async"></script>
-      <div class="addthis_sharing_toolbox"></div>
+    }
 
+    if (!empty($content_field['field_os2web_borger_dk_header'])) {
+      print "<div class='borger_dk_header' id='borger_dk_header'>";
+      print render($content_field['field_os2web_borger_dk_header']);
+      print "</div>";
+    }
+    print "</div></div>";
+  ?>
+  <div class="content clearfix"<?php print $content_attributes; ?>>
+  <?php
+    if (!empty($content_field['field_os2web_borger_dk_selfservi'])) {
+      print "<div class='borger_dk-region-stack2'>
+              <div class='inside'>
+                <div class='os2web_borger_dk_selfservi'>";
+      print render($content_field['field_os2web_borger_dk_selfservi']);
+      print   '</div>
+              </div>
+            </div>';
+    }
+
+  ?>
+  </div>
+  <div class="content clearfix"<?php print $content_attributes; ?>>
+  <?php
+    print "<div class='borger_dk-region-stack3'>
+            <div class='inside'>";
+    if (!empty($content_field['field_os2web_borger_dk_pre_text'])) {
+      print "<div class='borger_dk-field_os2web-borger-dk-pre_text'>";
+      print render($content_field['field_os2web_borger_dk_pre_text']);
+      print '</div>';
+      print "<div class='panel-separator'></div>";
+    }
+
+    if (!empty($content_field['body'])) {
+      print "<div class='borger_dk-body node-body' id='borger_dk-body'>";
+      print "<div class='borger_dk_body_intro_text'>" . "Læs om " . $node->title . "</div>";
+      print render($content_field['body']);
+      print '</div>';
+      print "<div class='panel-separator'></div>";
+    }
+    if (!empty($content_field['field_os2web_borger_dk_post_text'])) {
+      print "<div class='borger_dk-field_os2web-borger-dk-post_text'>";
+      print render($content_field['field_os2web_borger_dk_post_text']);
+      print '</div>';
+      print "<div class='panel-separator'></div>";
+    }
+
+    if (!empty($content_field['field_os2web_borger_dk_legislati'])) {
+      print "<div class='borger_dk-field_os2web-borger-dk-legislati'>";
+      print render($content['field_os2web_borger_dk_legislati']);
+      print "</div>";
+    }
+    print "</div></div>";
+
+    print "<div class='borger_dk-region-stack4'>";
+    print   "<div class= 'inside'>";
+    if (!empty($content_field['field_os2web_borger_dk_recommend'])) { 
+      print   "<div class='borger_dk-field_os2web-borger-dk-recommend'>";
+      print     render($content_field['field_os2web_borger_dk_recommend']);
+      print   "</div>";
+      print   "<div class='panel-separator'></div>";
+
+    }
+    if (!empty($content_field['field_os2web_borger_dk_shortlist'])) {
+      print   "<div class='borger_dk-field_os2web-borger-dk-shortlist'> ";
+      print     render($content_field['field_os2web_borger_dk_shortlist']);
+      print   "</div>";
+    }
+    if (!empty($content_field['field_os2web_borger_dk_byline'])) {
+      print   "<div class='borger_dk-field_os2web-borger-dk-byline'> ";
+      print    render($content_field['field_os2web_borger_dk_byline']);
+      print   "</div>";
+    }
+
+    print "</div></div>";
+
+//      print render($content);
+    ?>
     </div>
-
   </div>
 
   <?php
+    // Remove the "Add new comment" link on the teaser page or if the comment
+    // form is being displayed on the same page.
+   // if ($teaser || !empty($content['comments']['comment_form'])) {
+      //unset($content['links']['comment']['#links']['comment-add']);
+    //}
     // Only display the wrapper div if there are links.
     $links = render($content['links']);
     if ($links):
@@ -188,5 +301,5 @@
   <?php endif; ?>
 
   <?php print render($content['comments']); ?>
-  </div>
-</article>
+
+</div>
