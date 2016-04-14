@@ -800,6 +800,9 @@ function os2web_borger_dk_update_article($nid) {
 
   // Now we update the node content with the fetched article content.
   $node = _os2web_borger_dk_update_node_content($nid, $article);
+  if (variable_get('os2web_borger_dk_microarticle_active')) {
+    _os2web_borger_dk_microarticle_helper($article['kernetekst'], $node, FALSE);
+  }
   node_save($node);
 
 }
@@ -846,6 +849,10 @@ function os2web_borger_dk_microarticles_update_submit($form, &$form_state) {
     // Only update the body text.
     $node->body[LANGUAGE_NONE][0]['value'] = $body;
     node_save($node);
+
+    // Update microarticle field setting.
+     _os2web_borger_dk_microarticle_helper($article['kernetekst'], $node, FALSE);
+
     // And we notify the user that the article has been updated.
     drupal_set_message(t('The microarticles have been updated'), 'status');
   }
@@ -1001,9 +1008,9 @@ function _os2web_borger_dk_microarticle_helper($body_text, $node, $view = FALSE)
     $text_area = 'os2web_borger_dk_micro_textarea_' . $microno;
 
     if (!$view && is_object($node)) {
-      $field_microarticle_settings[$microno] = $node->$checkboxno;
+      $field_microarticle_settings[$microno] = isset($node->$checkboxno) ? $node->$checkboxno : 1;
         // Body text (Article text).
-      $article_text .= "<div class=\"microArticle\" id=\"microArticle" . $micro_id . "\">" . "\r\n";
+      $article_text .= "<div class=\"microArticle\" id=\"microArticle" . $microno . "\">" . "\r\n";
 
       $micro_h2 = "<h2 class=\"mArticle\" id=\"mArticle" . $microno . "\">";
       $micro_h2 .= $node->$h2_text_field . "</h2>";
@@ -1026,7 +1033,7 @@ function _os2web_borger_dk_microarticle_helper($body_text, $node, $view = FALSE)
       }
       if ($node[$microno] != 0) {
         // Body text (Article text).
-        $article_text .= "<div class=\"microArticle\" id=\"microArticle" . $micro_id . "\">" . "\r\n";
+        $article_text .= "<div class=\"microArticle\" id=\"microArticle" . $microno . "\">" . "\r\n";
 
         $micro_h2 = "<h2 class=\"mArticle\" id=\"mArticle" . $microno . "\">";
         $micro_h2 .= $title . "</h2>";
